@@ -1,4 +1,4 @@
-🐍 Neo-Snake Portfolio Edition
+🐍 Neo-Snake
 
 A modern, cyberpunk-themed Snake game built with React and Tailwind CSS. This project demonstrates state management, side-effects handling (useEffect), and responsive design patterns in a functional React component architecture.
 
