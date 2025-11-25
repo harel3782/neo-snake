@@ -1,7 +1,8 @@
-🐍 Neo-Snake
+Neo-Snake 🐍
+
 A modern, cyberpunk-themed Snake game built with React and Tailwind CSS. This project demonstrates state management, side-effects handling (useEffect), and responsive design patterns in a functional React component architecture.
 
-🌟 Features
+Features
 
 React Hooks: Uses useState, useEffect, useRef, and useCallback for game loop logic.
 
