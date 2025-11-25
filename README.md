@@ -1,16 +1,88 @@
-# React + Vite
+🐍 Neo-Snake Portfolio Edition
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, cyberpunk-themed Snake game built with React and Tailwind CSS. This project demonstrates state management, side-effects handling (useEffect), and responsive design patterns in a functional React component architecture.
 
-Currently, two official plugins are available:
+🌟 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+React Hooks: Uses useState, useEffect, useRef, and useCallback for game loop logic.
 
-## React Compiler
+Input Buffering: Implements a move queue system to prevent "suicide turns" (a common bug in simple snake games).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Persistence: Saves High Scores to localStorage.
 
-## Expanding the ESLint configuration
+Responsive Design: Includes touch controls (D-Pad) for mobile devices and keyboard support (WASD/Arrows) for desktop.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Dynamic Themes: Switch between Matrix Green, Cyber Blue, Synth Purple, and Magma Orange.
+
+Polished UI: Neon glow effects and smooth transitions using Tailwind CSS.
+
+🚀 How to Run Locally
+
+Follow these steps to get the game running on your local machine.
+
+Prerequisites
+
+Make sure you have Node.js installed. You can check by running:
+
+node -v
+
+
+(If you don't have it, download it from nodejs.org)
+
+1. Clone the Repository
+
+Open your terminal and run:
+
+git clone [https://github.com/YOUR-USERNAME/neo-snake-portfolio.git](https://github.com/YOUR-USERNAME/neo-snake-portfolio.git)
+cd neo-snake-portfolio
+
+
+2. Install Dependencies
+
+Install the required packages (React, Tailwind, Lucide Icons, etc.):
+
+npm install
+
+
+3. Start the Development Server
+
+Run the local server:
+
+npm run dev
+
+
+4. Play!
+
+Click the link shown in your terminal (usually http://localhost:5173) to open the game in your browser.
+
+🛠️ Tech Stack
+
+Framework: React (Vite)
+
+Styling: Tailwind CSS
+
+Icons: Lucide React
+
+Language: JavaScript (ES6+)
+
+🎮 Controls
+
+Platform
+
+Movement
+
+Pause
+
+Desktop
+
+Arrow Keys or W-A-S-D
+
+Spacebar
+
+Mobile
+
+On-screen D-Pad
+
+Pause Button
+
+Created by [Your Name] for Portfolio Demonstration.
