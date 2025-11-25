@@ -16,7 +16,7 @@ Dynamic Themes: Switch between Matrix Green, Cyber Blue, Synth Purple, and Magma
 
 Polished UI: Neon glow effects and smooth transitions using Tailwind CSS.
 
-🚀 How to Run Locally
+How to Run Locally?
 
 Follow these steps to get the game running on your local machine.
 
