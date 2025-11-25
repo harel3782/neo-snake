@@ -43,7 +43,7 @@ Open your terminal and run:
 ```bash
 
 git clone https://github.com/harel3782/neo-snake.git
-cd neo-snake-portfolio
+cd neo-snake
 ```
 ## 2. Install Dependencies
 
