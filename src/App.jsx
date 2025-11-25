@@ -1,11 +1,17 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Trophy, RotateCcw, Play, Pause, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Palette } from 'lucide-react';
+import { Trophy, RotateCcw, Play, Pause, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Grid3X3 } from 'lucide-react';
 
 // --- Configuration ---
-const GRID_SIZE = 20;
 const INITIAL_SPEED = 150;
 const MIN_SPEED = 60;
 const SPEED_DECREMENT = 3;
+
+// --- GRID CONFIGURATION ---
+const GRID_SIZES = {
+  SMALL: { label: 'Small', value: 15 },
+  MEDIUM: { label: 'Normal', value: 20 },
+  LARGE: { label: 'Huge', value: 25 },
+};
 
 // --- COLOR THEMES ---
 const THEMES = {
@@ -70,13 +76,14 @@ const INITIAL_SNAKE = [
 
 const INITIAL_DIRECTION = DIRECTIONS.UP;
 
-const generateFood = (snake) => {
+// Helper: Needs size passed in now
+const generateFood = (snake, size) => {
   let newFood;
   let isSafe = false;
   while (!isSafe) {
     newFood = {
-      x: Math.floor(Math.random() * GRID_SIZE),
-      y: Math.floor(Math.random() * GRID_SIZE),
+      x: Math.floor(Math.random() * size),
+      y: Math.floor(Math.random() * size),
     };
     // eslint-disable-next-line no-loop-func
     isSafe = !snake.some(segment => segment.x === newFood.x && segment.y === newFood.y);
@@ -84,25 +91,24 @@ const generateFood = (snake) => {
   return newFood;
 };
 
-// --- GameBoard now accepts a 'theme' prop ---
-const GameBoard = ({ snake, food, gameOver, isPaused, theme }) => {
-  const gridCells = Array.from({ length: GRID_SIZE * GRID_SIZE });
+const GameBoard = ({ snake, food, gameOver, isPaused, theme, gridSize }) => {
+  const gridCells = Array.from({ length: gridSize * gridSize });
 
   return (
     <div 
       className="relative bg-slate-900 border-4 border-slate-700 rounded-lg shadow-2xl overflow-hidden select-none"
       style={{
         display: 'grid',
-        gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)`,
-        gridTemplateRows: `repeat(${GRID_SIZE}, 1fr)`,
+        gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
+        gridTemplateRows: `repeat(${gridSize}, 1fr)`,
         aspectRatio: '1/1',
         width: '100%',
         maxWidth: '500px'
       }}
     >
       {gridCells.map((_, index) => {
-        const x = index % GRID_SIZE;
-        const y = Math.floor(index / GRID_SIZE);
+        const x = index % gridSize;
+        const y = Math.floor(index / gridSize);
         
         let isSnake = false;
         let isHead = false;
@@ -115,7 +121,6 @@ const GameBoard = ({ snake, food, gameOver, isPaused, theme }) => {
           }
         });
 
-        // Use theme properties for classes
         return (
           <div 
             key={`${x}-${y}`}
@@ -146,6 +151,7 @@ const GameBoard = ({ snake, food, gameOver, isPaused, theme }) => {
 };
 
 export default function App() {
+  const [gridSize, setGridSize] = useState(GRID_SIZES.MEDIUM.value);
   const [snake, setSnake] = useState(INITIAL_SNAKE);
   const [food, setFood] = useState({ x: 5, y: 5 });
   const [score, setScore] = useState(0);
@@ -155,7 +161,7 @@ export default function App() {
   const [gameStarted, setGameStarted] = useState(false);
   const [speed, setSpeed] = useState(INITIAL_SPEED);
   
-  // NEW: Theme State
+  // Theme State
   const [currentTheme, setCurrentTheme] = useState('GREEN');
   const activeTheme = THEMES[currentTheme];
 
@@ -163,18 +169,47 @@ export default function App() {
   const currentDirectionRef = useRef(INITIAL_DIRECTION);
   const gameLoopRef = useRef(null);
 
+  // Initial Load
   useEffect(() => {
     const saved = localStorage.getItem('snake-highscore');
     if (saved) setHighScore(parseInt(saved, 10));
-    setFood(generateFood(INITIAL_SNAKE));
+    setFood(generateFood(INITIAL_SNAKE, gridSize));
   }, []);
 
+  // Score Persistence
   useEffect(() => {
     if (score > highScore) {
       setHighScore(score);
       localStorage.setItem('snake-highscore', score.toString());
     }
   }, [score, highScore]);
+
+  // Handle Grid Size Change
+  const changeGridSize = (newSize) => {
+    setGridSize(newSize);
+    // Reset Game logic immediately
+    setGameStarted(false);
+    setGameOver(false);
+    
+    // Calculate center based on NEW size
+    const startX = Math.floor(newSize / 2);
+    const startY = Math.floor(newSize / 2);
+    
+    // Create a proper 3-segment snake
+    const newSnake = [
+      { x: startX, y: startY },
+      { x: startX, y: startY + 1 },
+      { x: startX, y: startY + 2 }
+    ];
+
+    setSnake(newSnake); 
+    setFood(generateFood(newSnake, newSize));
+    setScore(0);
+    
+    // Reset direction visual
+    currentDirectionRef.current = DIRECTIONS.UP;
+    moveQueue.current = [];
+  };
 
   const handleDirectionChange = useCallback((newDir) => {
     const lastPendingDirection = moveQueue.current.length > 0 
@@ -236,7 +271,8 @@ export default function App() {
         y: head.y + nextMove.y,
       };
 
-      if (newHead.x < 0 || newHead.x >= GRID_SIZE || newHead.y < 0 || newHead.y >= GRID_SIZE) {
+      // Dynamic Boundary Check based on gridSize
+      if (newHead.x < 0 || newHead.x >= gridSize || newHead.y < 0 || newHead.y >= gridSize) {
         setGameOver(true);
         return prevSnake;
       }
@@ -253,7 +289,7 @@ export default function App() {
 
       if (isEating) {
         setScore(s => s + 10);
-        setFood(generateFood(newSnake));
+        setFood(generateFood(newSnake, gridSize)); // Pass gridSize
         setSpeed(prev => Math.max(MIN_SPEED, prev - SPEED_DECREMENT));
       } else {
         newSnake.pop();
@@ -261,7 +297,7 @@ export default function App() {
 
       return newSnake;
     });
-  }, [food, gameOver, isPaused, gameStarted]);
+  }, [food, gameOver, isPaused, gameStarted, gridSize]);
 
   useEffect(() => {
     if (gameLoopRef.current) clearInterval(gameLoopRef.current);
@@ -272,15 +308,24 @@ export default function App() {
   }, [gameTick, gameStarted, isPaused, gameOver, speed]);
 
   const startGame = () => {
-    setSnake(INITIAL_SNAKE);
-    currentDirectionRef.current = INITIAL_DIRECTION;
+    // Reset based on current gridSize
+    const startX = Math.floor(gridSize / 2);
+    const startY = Math.floor(gridSize / 2);
+    const startSnake = [
+      { x: startX, y: startY },
+      { x: startX, y: startY + 1 },
+      { x: startX, y: startY + 2 }
+    ];
+
+    setSnake(startSnake);
+    currentDirectionRef.current = DIRECTIONS.UP;
     moveQueue.current = [];
     setScore(0);
     setGameOver(false);
     setIsPaused(false);
     setGameStarted(true);
     setSpeed(INITIAL_SPEED);
-    setFood(generateFood(INITIAL_SNAKE));
+    setFood(generateFood(startSnake, gridSize));
   };
 
   const togglePause = () => {
@@ -297,6 +342,7 @@ export default function App() {
           <h1 className={`text-3xl font-black bg-gradient-to-r ${activeTheme.gradient} bg-clip-text text-transparent italic tracking-tighter transition-all duration-500`}>
             NEO-SNAKE
           </h1>
+          <p className="text-xs text-slate-500 font-mono">REACT PORTFOLIO // V5</p>
         </div>
         
         <div className="flex gap-4 text-right">
@@ -313,42 +359,71 @@ export default function App() {
         </div>
       </div>
 
-      <GameBoard snake={snake} food={food} gameOver={gameOver} isPaused={isPaused} theme={activeTheme} />
+      <GameBoard snake={snake} food={food} gameOver={gameOver} isPaused={isPaused} theme={activeTheme} gridSize={gridSize} />
 
       {/* Control Bar */}
-      <div className="w-full max-w-[500px] mt-6 flex items-center justify-between">
-        <div className="flex gap-2">
-          {!gameStarted || gameOver ? (
-            <button 
-              onClick={startGame}
-              className={`flex items-center gap-2 px-6 py-3 ${activeTheme.button} text-slate-950 font-bold rounded-full transition-all shadow-lg active:scale-95`}
-            >
-              {gameOver ? <RotateCcw size={20} /> : <Play size={20} />}
-              {gameOver ? 'Try Again Loser' : 'Start Game'}
-            </button>
-          ) : (
-            <button 
-              onClick={togglePause}
-              className={`flex items-center justify-center w-12 h-12 rounded-full transition-all border-2 
-                ${isPaused 
-                  ? 'bg-amber-500/20 border-amber-500 text-amber-500' 
-                  : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'}`}
-            >
-              {isPaused ? <Play size={24} fill="currentColor" /> : <Pause size={24} fill="currentColor" />}
-            </button>
-          )}
+      <div className="w-full max-w-[500px] mt-6 flex flex-col gap-4">
+        
+        {/* Buttons Row */}
+        <div className="flex items-center justify-between">
+            <div className="flex gap-2">
+            {!gameStarted || gameOver ? (
+                <button 
+                onClick={startGame}
+                className={`flex items-center gap-2 px-6 py-3 ${activeTheme.button} text-slate-950 font-bold rounded-full transition-all shadow-lg active:scale-95`}
+                >
+                {gameOver ? <RotateCcw size={20} /> : <Play size={20} />}
+                {gameOver ? 'Try Again' : 'Start Game'}
+                </button>
+            ) : (
+                <button 
+                onClick={togglePause}
+                className={`flex items-center justify-center w-12 h-12 rounded-full transition-all border-2 
+                    ${isPaused 
+                    ? 'bg-amber-500/20 border-amber-500 text-amber-500' 
+                    : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'}`}
+                >
+                {isPaused ? <Play size={24} fill="currentColor" /> : <Pause size={24} fill="currentColor" />}
+                </button>
+            )}
+            </div>
+
+            {/* Theme Selectors */}
+            <div className="flex gap-2">
+            {Object.values(THEMES).map((t) => (
+                <button
+                key={t.id}
+                onClick={() => setCurrentTheme(t.id)}
+                className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${t.dot} ${currentTheme === t.id ? 'border-white scale-110 shadow-lg ring-2 ring-white/20' : 'border-transparent opacity-50 hover:opacity-100'}`}
+                title={t.name}
+                />
+            ))}
+            </div>
         </div>
 
-        {/* Theme Selectors */}
-        <div className="flex gap-2">
-          {Object.values(THEMES).map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setCurrentTheme(t.id)}
-              className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${t.dot} ${currentTheme === t.id ? 'border-white scale-110 shadow-lg ring-2 ring-white/20' : 'border-transparent opacity-50 hover:opacity-100'}`}
-              title={t.name}
-            />
-          ))}
+        {/* Grid Size Selector */}
+        <div className="flex items-center justify-between bg-slate-900/50 p-2 rounded-xl border border-slate-800">
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase px-2">
+                <Grid3X3 size={16} /> Map Size
+            </div>
+            <div className="flex gap-1">
+                {Object.values(GRID_SIZES).map((sizeObj) => (
+                    <button
+                        key={sizeObj.value}
+                        onClick={() => changeGridSize(sizeObj.value)}
+                        disabled={gameStarted && !gameOver && !isPaused}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all
+                            ${gridSize === sizeObj.value 
+                                ? `${activeTheme.button} text-slate-900` 
+                                : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                            }
+                            ${gameStarted && !gameOver && !isPaused ? 'opacity-50 cursor-not-allowed' : ''}
+                        `}
+                    >
+                        {sizeObj.label}
+                    </button>
+                ))}
+            </div>
         </div>
       </div>
 
