@@ -85,4 +85,4 @@ On-screen D-Pad
 
 Pause Button
 
-Created by [Your Name] for Portfolio Demonstration.
+Created by Harel Mashiah.
