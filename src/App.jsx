@@ -297,7 +297,6 @@ export default function App() {
           <h1 className={`text-3xl font-black bg-gradient-to-r ${activeTheme.gradient} bg-clip-text text-transparent italic tracking-tighter transition-all duration-500`}>
             NEO-SNAKE
           </h1>
-          <p className="text-xs text-slate-500 font-mono">REACT PORTFOLIO // V4</p>
         </div>
         
         <div className="flex gap-4 text-right">
