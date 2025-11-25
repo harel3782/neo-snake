@@ -33,7 +33,7 @@ node -v
 
 Open your terminal and run:
 
-git clone [https://github.com/YOUR-USERNAME/neo-snake-portfolio.git](https://github.com/YOUR-USERNAME/neo-snake-portfolio.git)
+git clone [https://github.com/harel3782/neo-snake.git](https://github.com/YOUR-USERNAME/neo-snake-portfolio.git)
 cd neo-snake-portfolio
 
 
