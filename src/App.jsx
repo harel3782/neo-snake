@@ -325,7 +325,7 @@ export default function App() {
               className={`flex items-center gap-2 px-6 py-3 ${activeTheme.button} text-slate-950 font-bold rounded-full transition-all shadow-lg active:scale-95`}
             >
               {gameOver ? <RotateCcw size={20} /> : <Play size={20} />}
-              {gameOver ? 'Try Again' : 'Start Game'}
+              {gameOver ? 'Try Again Loser' : 'Start Game'}
             </button>
           ) : (
             <button 
